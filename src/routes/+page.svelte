@@ -73,6 +73,7 @@
 			border: 3px solid #ff2d55;
 			border-radius: 50%;
 			animation: live-ring 1.5s ease-out infinite;
+			pointer-events: none;
 		}
 		
 		.live-ring:nth-child(2) {
@@ -98,6 +99,7 @@
 			gap: 4px;
 			box-shadow: 0 2px 8px rgba(255, 45, 85, 0.4);
 			animation: live-pulse 2s ease-in-out infinite;
+			pointer-events: none;
 		}
 		
 		.live-dot {
