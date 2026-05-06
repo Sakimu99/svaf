@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { spaCache } from '$lib/utils/spaCache';
+	import { siteConfig } from '$lib/config/site';
 
 	let {
 		pathname,
@@ -16,7 +17,7 @@
 	async function loadPageViews() {
 		const key = cacheKey ?? `pageviews-${pathname}`;
 		pageViews = await spaCache.get(key, async () => {
-			const response = await fetch('https://t.2x.nz/batch', {
+			const response = await fetch(siteConfig.services.pageViews, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'text/plain'

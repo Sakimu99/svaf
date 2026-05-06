@@ -92,8 +92,8 @@
 			const accountName = parsed.pathname.startsWith('/')
 				? parsed.pathname.slice(1).split(':').slice(1).join(':')
 				: '';
-			parsed.pathname = `/${encodeURIComponent(`AcoFork Forum${accountName ? `:${accountName}` : ''}`)}`;
-			parsed.searchParams.set('issuer', 'AcoFork Forum');
+			parsed.pathname = `/${encodeURIComponent(`${siteConfig.forum.totpIssuer}${accountName ? `:${accountName}` : ''}`)}`;
+			parsed.searchParams.set('issuer', siteConfig.forum.totpIssuer);
 			return parsed.toString();
 		} catch {
 			return uri;

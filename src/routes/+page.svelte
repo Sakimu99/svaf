@@ -16,7 +16,7 @@
 	
 	async function checkLiveStatus() {
 		isLive = await spaCache.get('live-status', async () => {
-			const response = await fetch('https://b-live.2x.nz');
+			const response = await fetch(siteConfig.live.statusApi);
 			if (response.ok) {
 				const status = await response.text();
 				return status.trim() === '1';
@@ -123,7 +123,7 @@
 			<div class="live-ring"></div>
 		{/if}
 		{#if isLive}
-			<a href="https://live.bilibili.com/12005649" target="_blank" rel="noopener noreferrer">
+			<a href={siteConfig.live.roomUrl} target="_blank" rel="noopener noreferrer">
 				<img src={siteConfig.bio.avatar} alt="Avatar" class="h-32 w-32 rounded-full cursor-pointer" />
 			</a>
 		{:else}
@@ -188,7 +188,7 @@
 			</Button>
 		</a>
 
-		<a href="https://ai.2x.nz" target="_blank" rel="noopener noreferrer">
+		<a href={siteConfig.services.aiDraw} target="_blank" rel="noopener noreferrer">
 			<Button variant="outline" class="flex items-center gap-2">
 				<Icon icon="mdi:palette" class="w-5 h-5" />
 				AI 生图
@@ -265,7 +265,7 @@
 			</Button>
 		</a>
 		
-		<a href="https://u.2x.nz/share/CdkXbGgZr6ECKOyK" target="_blank" rel="noopener noreferrer">
+		<a href={siteConfig.services.statsShare} target="_blank" rel="noopener noreferrer">
 			<Button variant="outline" class="flex items-center gap-2">
 				<Icon icon="mdi:chart-line" class="w-5 h-5" />
 				统计

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { siteConfig } from '$lib/config/site';
 
 	interface ConsentPreferences {
 		necessary: boolean;
@@ -73,8 +74,8 @@
 	function loadUmami() {
 		const script = document.createElement('script');
 		script.defer = true;
-		script.src = 'https://u.2x.nz/script.js';
-		script.setAttribute('data-website-id', '5d710dbd-3a2e-43e3-a553-97b415090c63');
+		script.src = siteConfig.analytics.umami.src;
+		script.setAttribute('data-website-id', siteConfig.analytics.umami.websiteId);
 		document.head.appendChild(script);
 	}
 
@@ -82,14 +83,14 @@
 		const script = document.createElement('script');
 		script.defer = true;
 		script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
-		script.setAttribute('data-cf-beacon', JSON.stringify({ token: '15fe148e91b34f10a15652e1a74ab26c' }));
+		script.setAttribute('data-cf-beacon', JSON.stringify({ token: siteConfig.analytics.cfWebAnalytics.token }));
 		document.head.appendChild(script);
 	}
 
 	function loadCfUmami() {
 		const script = document.createElement('script');
 		script.defer = true;
-		script.src = 'https://t.2x.nz/tracker.js';
+		script.src = siteConfig.analytics.cfUmami.src;
 		document.head.appendChild(script);
 	}
 
@@ -99,7 +100,7 @@
 			var _hmt = _hmt || [];
 			(function() {
 				var hm = document.createElement("script");
-				hm.src = "https://hm.baidu.com/hm.js?a87028bb5a1ed77d98f192bc12b56142";
+				hm.src = "https://hm.baidu.com/hm.js?${siteConfig.analytics.baidu.id}";
 				var s = document.getElementsByTagName("script")[0];
 				s.parentNode.insertBefore(hm, s);
 			})();
@@ -111,7 +112,7 @@
 		// 加载 gtag.js
 		const gtagScript = document.createElement('script');
 		gtagScript.async = true;
-		gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-RBZVQJCV26';
+		gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + siteConfig.analytics.google.measurementId;
 		document.head.appendChild(gtagScript);
 
 		// 初始化 Google Analytics
@@ -120,7 +121,7 @@
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
-			gtag('config', 'G-RBZVQJCV26');
+			gtag('config', '${siteConfig.analytics.google.measurementId}');
 		`;
 		document.head.appendChild(initScript);
 	}
@@ -132,7 +133,7 @@
 				c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
 				t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
 				y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-			})(window, document, "clarity", "script", "v94yrasi99");
+			})(window, document, "clarity", "script", "${siteConfig.analytics.clarity.projectId}");
 		`;
 		document.head.appendChild(script);
 	}

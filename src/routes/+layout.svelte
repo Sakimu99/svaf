@@ -28,11 +28,11 @@
 		<meta property="og:url" content={siteConfig.url} />
 		<meta property="og:title" content={siteConfig.title} />
 		<meta property="og:description" content={siteConfig.description} />
-		<meta property="og:image" content="{siteConfig.url}/files/img/official.png" />
+		<meta property="og:image" content="{siteConfig.url}{siteConfig.ogImage}" />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={siteConfig.title} />
 		<meta name="twitter:description" content={siteConfig.description} />
-		<meta name="twitter:image" content="{siteConfig.url}/files/img/official.png" />
+		<meta name="twitter:image" content="{siteConfig.url}{siteConfig.ogImage}" />
 	{/if}
 	<link rel="canonical" href="{siteConfig.url}{$page.url.pathname}" />
 

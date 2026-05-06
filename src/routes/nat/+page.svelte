@@ -220,7 +220,7 @@
 			<p class="text-sm text-muted-foreground">
 				后端开源：
 				<a
-					href="https://github.com/afoim/webrtc_check_nat"
+					href={siteConfig.repos.natTool}
 					target="_blank"
 					rel="noopener noreferrer"
 					class="text-primary hover:underline"

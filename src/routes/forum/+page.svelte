@@ -267,7 +267,7 @@
 			<p class="text-sm text-muted-foreground leading-relaxed">
 				i.2x.nz 论坛已将前端接入官网。如遇前端 Bug，请反馈至
 				<a
-					href="https://github.com/afoim/svaf/issues"
+					href="{siteConfig.repos.frontend}/issues"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="text-primary underline decoration-dashed underline-offset-[6px]"
@@ -276,7 +276,7 @@
 				</a>
 				；如遇后端 Bug，请反馈至
 				<a
-					href="https://github.com/afoim/acofork_forum_backend/issues"
+					href="{siteConfig.repos.backend}/issues"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="text-primary underline decoration-dashed underline-offset-[6px]"

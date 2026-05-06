@@ -5,7 +5,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { type FileItem, formatSize, getFileIcon } from './file-utils';
 
-	let { apiBase = 'https://e3.2x.nz/api/' }: { apiBase?: string } = $props();
+	import { siteConfig } from '$lib/config/site';
+	let { apiBase = siteConfig.services.fileExplorer }: { apiBase?: string } = $props();
 
 	let items = $state<FileItem[]>([]);
 	let pathStack = $state<{ name: string; path: string }[]>([

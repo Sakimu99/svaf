@@ -85,7 +85,7 @@
 		const currentPosts = paginatedPosts;
 		const pathnames = currentPosts.map(({ post }) => `/posts/${post.slug}/`);
 		try {
-			const response = await fetch('https://t.2x.nz/batch', {
+			const response = await fetch(siteConfig.services.pageViews, {
 				method: 'POST',
 				headers: { 'Content-Type': 'text/plain' },
 				body: JSON.stringify(pathnames)

@@ -3,6 +3,7 @@
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/ui/alert';
 	import Icon from '@iconify/svelte';
 	import { isDark } from '$lib/stores/theme';
+	import { siteConfig } from '$lib/config/site';
 
 	let loaded = $state(false);
 
@@ -63,10 +64,10 @@
 		const dark = document.documentElement.classList.contains('dark');
 		const script = document.createElement('script');
 		script.src = 'https://giscus.app/client.js';
-		script.setAttribute('data-repo', 'afoim/giscus-fuwari');
-		script.setAttribute('data-repo-id', 'R_kgDOOi8quw');
-		script.setAttribute('data-category', 'Announcements');
-		script.setAttribute('data-category-id', 'DIC_kwDOOi8qu84CprDV');
+		script.setAttribute('data-repo', siteConfig.giscus.repo);
+		script.setAttribute('data-repo-id', siteConfig.giscus.repoId);
+		script.setAttribute('data-category', siteConfig.giscus.category);
+		script.setAttribute('data-category-id', siteConfig.giscus.categoryId);
 		script.setAttribute('data-mapping', 'pathname');
 		script.setAttribute('data-strict', '1');
 		script.setAttribute('data-reactions-enabled', '1');
