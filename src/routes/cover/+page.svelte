@@ -1,10 +1,11 @@
 <script lang="ts">
 	import CoverGenerator from '$lib/components/CoverGenerator.svelte';
+	import { siteConfig } from '$lib/config/site';
 	import PageViews from '$lib/components/PageViews.svelte';
 </script>
 
 <svelte:head>
-	<title>封面制作 - 二叉树树</title>
+	<title>封面制作 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-[1920px] px-4 py-8">

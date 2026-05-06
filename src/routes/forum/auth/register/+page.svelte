@@ -9,6 +9,7 @@
 	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
 	import { register } from '$lib/forum/api/auth';
 	import { getForumConfig } from '$lib/forum/api/config';
+	import { siteConfig } from '$lib/config/site';
 	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
 
 	let username = $state('');
@@ -84,7 +85,7 @@
 </script>
 
 <svelte:head>
-	<title>注册 - 论坛 - 二叉树树</title>
+	<title>注册 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-xl px-4 py-12 space-y-6">

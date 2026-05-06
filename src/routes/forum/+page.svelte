@@ -24,6 +24,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { getSession, logout as forumLogout } from '$lib/forum/api/auth';
 	import { forumEnv } from '$lib/forum/stores/env';
+	import { siteConfig } from '$lib/config/site';
 	import type { ForumCategory, ForumPostSummary } from '$lib/forum/types/post';
 
 	const PAGE_SIZE = 20;
@@ -247,8 +248,8 @@
 </script>
 
 <svelte:head>
-	<title>论坛 - 二叉树树</title>
-	<meta name="description" content="二叉树树官方论坛" />
+	<title>论坛 - {siteConfig.siteName}</title>
+	<meta name="description" content="{siteConfig.siteName}官方论坛" />
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-12 space-y-6">

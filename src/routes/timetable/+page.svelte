@@ -5,6 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import Icon from '@iconify/svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
+	import { siteConfig } from '$lib/config/site';
 	import type { PageData } from './$types';
 	
 	let { data }: { data: PageData } = $props();
@@ -29,7 +30,7 @@
 </script>
 
 <svelte:head>
-	<title>课程表 - 第 {data.viewModel.currentWeek} 周 - 二叉树树</title>
+	<title>课程表 - 第 {data.viewModel.currentWeek} 周 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-12">

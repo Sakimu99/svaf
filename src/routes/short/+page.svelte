@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import Icon from '@iconify/svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
+	import { siteConfig } from '$lib/config/site';
 	import { ZW_PREFIX, encodeUrl, decodeUrl, visualizeZwChars } from '$lib/utils/zwShortLink';
 
 	type GeneratedLink = {
@@ -87,7 +88,7 @@
 </script>
 
 <svelte:head>
-	<title>零宽短链生成器 - 二叉树树</title>
+	<title>零宽短链生成器 - {siteConfig.siteName}</title>
 	<meta name="description" content="生成视觉上相同的隐形短链接" />
 </svelte:head>
 

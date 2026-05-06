@@ -7,8 +7,8 @@
 	import Icon from '@iconify/svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
 
-	const LONG_DOMAIN =
-		'https://iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii.iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii.in';
+	import { siteConfig } from '$lib/config/site';
+	const LONG_DOMAIN = siteConfig.services.longDomain;
 
 	let targetUrl = $state('');
 	let generatedLink = $state('');
@@ -83,7 +83,7 @@
 </script>
 
 <svelte:head>
-	<title>长链生成器 - 二叉树树</title>
+	<title>长链生成器 - {siteConfig.siteName}</title>
 	<meta name="description" content="生成 i/I 字符编码的超长链接" />
 </svelte:head>
 

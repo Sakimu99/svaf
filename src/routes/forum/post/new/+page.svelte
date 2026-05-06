@@ -19,6 +19,7 @@
 	import { getSession } from '$lib/forum/api/auth';
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import type { ForumCategory } from '$lib/forum/types/post';
+	import { siteConfig } from '$lib/config/site';
 	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
 
 	let title = $state('');
@@ -91,7 +92,7 @@
 </script>
 
 <svelte:head>
-	<title>发布帖子 - 论坛 - 二叉树树</title>
+	<title>发布帖子 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-3xl px-4 py-12 space-y-5">

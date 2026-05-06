@@ -5,7 +5,8 @@
 	import Icon from '@iconify/svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
 
-	const API_URL = 'https://nat.2x.nz/api/analyze';
+	import { siteConfig } from '$lib/config/site';
+	const API_URL = siteConfig.services.nat;
 	const PRIMARY_HOST = '217.142.241.80';
 	const SECONDARY_HOST = '64.110.98.108';
 
@@ -196,7 +197,7 @@
 </script>
 
 <svelte:head>
-	<title>NAT 类型检测 - 二叉树树</title>
+	<title>NAT 类型检测 - {siteConfig.siteName}</title>
 	<meta name="description" content="高级 NAT 类型及连通性探测" />
 </svelte:head>
 

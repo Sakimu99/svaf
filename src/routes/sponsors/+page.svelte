@@ -2,6 +2,7 @@
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import Icon from '@iconify/svelte';
+	import { siteConfig } from '$lib/config/site';
 	import { staticData } from '$lib/data/static-data';
 
 	interface Sponsor {
@@ -15,7 +16,7 @@
 </script>
 
 <svelte:head>
-	<title>赞助 - 二叉树树</title>
+	<title>赞助 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-12">

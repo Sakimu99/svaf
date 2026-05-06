@@ -6,13 +6,14 @@
 	import PageViews from '$lib/components/PageViews.svelte';
 	import FileExplorer from './FileExplorer.svelte';
 	import OneDriveExplorer from './OneDriveExplorer.svelte';
+	import { siteConfig } from '$lib/config/site';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
-	<title>文件 - 二叉树树</title>
+	<title>文件 - {siteConfig.siteName}</title>
 	<meta name="description" content="下载公开文件资源" />
 </svelte:head>
 

@@ -34,7 +34,8 @@
 	import { forumEnv } from '$lib/forum/stores/env';
 	import { forumAuth } from '$lib/forum/stores/auth';
 		import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
-		import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
+		import { siteConfig } from '$lib/config/site';
+	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
 
 	let postId = $state('');
 	let post = $state<ForumPostDetail | null>(null);
@@ -100,7 +101,7 @@
 		try {
 			post = await getPost(postId);
 			if (typeof document !== 'undefined' && post.title) {
-				document.title = `${post.title} - 论坛 - 二叉树树`;
+				document.title = `${post.title} - 论坛 - ${siteConfig.siteName}`;
 			}
 			void hydratePostLikeStatus();
 		} catch (e) {
@@ -262,7 +263,7 @@
 			editing = false;
 			emitSuccessToast('编辑帖子', '保存成功。');
 			if (typeof document !== 'undefined' && post.title) {
-				document.title = `${post.title} - 论坛 - 二叉树树`;
+				document.title = `${post.title} - 论坛 - ${siteConfig.siteName}`;
 			}
 		} catch (e) {
 			emitErrorToast('编辑帖子', e instanceof Error ? e.message : '保存失败，请稍后再试。');
@@ -339,7 +340,7 @@
 </script>
 
 <svelte:head>
-	<title>帖子 - 论坛 - 二叉树树</title>
+	<title>帖子 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-12 space-y-5">

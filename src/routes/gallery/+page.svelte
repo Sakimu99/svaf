@@ -8,8 +8,9 @@
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 
-	const COUNT_JSON_URL = 'https://p.2x.nz/count.json';
-	const DOMAIN = 'https://p.2x.nz';
+	import { siteConfig } from '$lib/config/site';
+	const COUNT_JSON_URL = `${siteConfig.services.gallery}/count.json`;
+	const DOMAIN = siteConfig.services.gallery;
 	const FALLBACK = { h: 1074, v: 4003 };
 	const DEFAULT_RATIO_H = 4 / 3; // width / height
 	const DEFAULT_RATIO_V = 3 / 4;
@@ -217,7 +218,7 @@
 </script>
 
 <svelte:head>
-	<title>画廊 - 二叉树树</title>
+	<title>画廊 - {siteConfig.siteName}</title>
 	<meta name="description" content="浏览精选图片集" />
 </svelte:head>
 
@@ -239,12 +240,12 @@
 			<p class="text-sm text-muted-foreground leading-relaxed">
 				图片二进制自托管于：
 				<a
-					href="https://p.2x.nz"
+					href="{siteConfig.services.gallery}"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="font-medium text-primary hover:underline"
 				>
-					https://p.2x.nz
+					{siteConfig.services.gallery}
 				</a>
 				<br />
 				特别鸣谢：<b class="font-bold text-foreground">锦瑟/瑞希</b> 大佬提供的图源

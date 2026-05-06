@@ -10,6 +10,7 @@
 	import { resetPassword } from '$lib/forum/api/auth';
 	import { getForumConfig } from '$lib/forum/api/config';
 	import { ForumApiError } from '$lib/forum/types/api';
+	import { siteConfig } from '$lib/config/site';
 	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
 
 	let token = $state('');
@@ -85,7 +86,7 @@
 </script>
 
 <svelte:head>
-	<title>重置密码 - 论坛 - 二叉树树</title>
+	<title>重置密码 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-xl px-4 py-12 space-y-6">

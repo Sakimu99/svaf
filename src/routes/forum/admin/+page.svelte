@@ -39,6 +39,7 @@
 	} from '$lib/forum/types/api';
 	import type { ForumCategory } from '$lib/forum/types/post';
 	import type { ForumUser } from '$lib/forum/types/user';
+	import { siteConfig } from '$lib/config/site';
 	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
 
 	const defaultSettings: ForumAdminSettings = {
@@ -476,7 +477,7 @@
 </script>
 
 <svelte:head>
-	<title>管理控制台 - 论坛 - 二叉树树</title>
+	<title>管理控制台 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-6xl px-4 py-12 space-y-5">

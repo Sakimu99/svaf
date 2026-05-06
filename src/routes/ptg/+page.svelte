@@ -9,6 +9,7 @@
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import Icon from '@iconify/svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
+	import { siteConfig } from '$lib/config/site';
 
 	type ToolMode = 'prism' | 'shadow';
 	type UploadKind = 'source' | 'hidden';
@@ -558,7 +559,7 @@
 </script>
 
 <svelte:head>
-	<title>光棱坦克 / 幻影坦克 - 二叉树树</title>
+	<title>光棱坦克 / 幻影坦克 - {siteConfig.siteName}</title>
 	<meta name="description" content="本地生成支持白底/黑底显隐效果的 PNG" />
 </svelte:head>
 

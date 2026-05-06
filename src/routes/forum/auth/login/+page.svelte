@@ -11,6 +11,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { ForumApiError } from '$lib/forum/types/api';
 	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
+	import { siteConfig } from '$lib/config/site';
 	import { describeGithubError } from '$lib/forum/utils/github-oauth';
 	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
 
@@ -139,7 +140,7 @@
 </script>
 
 <svelte:head>
-	<title>登录 - 论坛 - 二叉树树</title>
+	<title>登录 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-xl px-4 py-12 space-y-6">

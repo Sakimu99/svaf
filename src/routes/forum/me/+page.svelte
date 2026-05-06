@@ -25,6 +25,7 @@
 	import type { ForumUser } from '$lib/forum/types/user';
 	import { compressAvatarImage } from '$lib/forum/utils/image-compression';
 	import { describeGithubError } from '$lib/forum/utils/github-oauth';
+	import { siteConfig } from '$lib/config/site';
 	import { emitErrorToast, emitSuccessToast } from '$lib/forum/utils/toast';
 
 	let user = $state<ForumUser | null>(null);
@@ -358,7 +359,7 @@
 </script>
 
 <svelte:head>
-	<title>个人中心 - 论坛 - 二叉树树</title>
+	<title>个人中心 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-5xl px-4 py-12 space-y-5">

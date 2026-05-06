@@ -11,6 +11,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import type { ForumPostSummary } from '$lib/forum/types/post';
 	import type { ForumUser } from '$lib/forum/types/user';
+	import { siteConfig } from '$lib/config/site';
 	import { formatForumDateTime } from '$lib/forum/utils/markdown';
 
 	let userId = $state('');
@@ -70,7 +71,7 @@
 			profile = p;
 			posts = list.items;
 			if (typeof document !== 'undefined' && p) {
-				document.title = `${p.displayName || p.username} - 论坛 - 二叉树树`;
+				document.title = `${p.displayName || p.username} - 论坛 - ${siteConfig.siteName}`;
 			}
 		} catch (e) {
 			profile = null;
@@ -92,7 +93,7 @@
 </script>
 
 <svelte:head>
-	<title>用户主页 - 论坛 - 二叉树树</title>
+	<title>用户主页 - 论坛 - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-12 space-y-5">
