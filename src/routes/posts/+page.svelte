@@ -147,8 +147,9 @@
 	}
 
 	function getPostStats(slug: string): { wordCount: number; readTime: number } | null {
-		const rssPost = allPosts.find(rss => rss.link.includes(slug));
-		return rssPost ? { wordCount: rssPost.wordCount, readTime: rssPost.readTime } : null;
+		const wc = data.wordCountMap[slug];
+		if (wc === undefined) return null;
+		return { wordCount: wc, readTime: Math.ceil(wc / 300) };
 	}
 
 	let filteredPostsWithMatches = $derived.by(() => {
@@ -229,12 +230,6 @@
 	});
 	
 	let hasAnyFilter = $derived(searchFilters.title || searchFilters.description || searchFilters.content || searchFilters.path);
-	
-	let totalStats = $derived.by(() => {
-		if (!hasLoaded) return { totalPosts: posts.length, totalWords: 0 };
-		const totalWords = allPosts.reduce((sum, post) => sum + post.wordCount, 0);
-		return { totalPosts: posts.length, totalWords };
-	});
 
 	function formatDate(dateString: string) {
 		const date = new Date(dateString);
@@ -262,11 +257,9 @@
 	<div class="mb-12 text-center">
 		<h1 class="mb-4 text-4xl font-bold">文章列表</h1>
 		<p class="text-muted-foreground">分享技术、想法和经验</p>
-		{#if hasLoaded}
-			<p class="mt-2 text-sm text-muted-foreground">
-				共 {totalStats.totalPosts} 篇文章 · 总计 {totalStats.totalWords.toLocaleString()} 字
-			</p>
-		{/if}
+		<p class="mt-2 text-sm text-muted-foreground">
+			共 {data.totalPosts} 篇文章 · 总计 {data.totalWords.toLocaleString()} 字
+		</p>
 	</div>
 
 	<div class="mb-8">
@@ -336,14 +329,12 @@
 									<time class="text-sm text-muted-foreground">
 										{formatDate(post.metadata.published)}
 									</time>
-									{#if hasLoaded}
-										{@const stats = getPostStats(post.slug)}
-										{#if stats}
-											<span class="text-sm text-muted-foreground">·</span>
-											<span class="text-sm text-muted-foreground">{stats.wordCount} 字</span>
-											<span class="text-sm text-muted-foreground">·</span>
-											<span class="text-sm text-muted-foreground">约 {stats.readTime} 分钟</span>
-										{/if}
+									{@const stats = getPostStats(post.slug)}
+									{#if stats}
+										<span class="text-sm text-muted-foreground">·</span>
+										<span class="text-sm text-muted-foreground">{stats.wordCount} 字</span>
+										<span class="text-sm text-muted-foreground">·</span>
+										<span class="text-sm text-muted-foreground">约 {stats.readTime} 分钟</span>
 									{/if}
 									{#if pageViews[post.slug]}
 										<span class="text-sm text-muted-foreground">·</span>
