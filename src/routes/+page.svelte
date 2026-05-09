@@ -165,7 +165,7 @@
 		<TimetableCard />
 	</div>
 
-	<!-- 社交媒体链接 -->
+	<!-- 社交媒体链接 + 分隔线 -->
 	<div class="flex flex-wrap gap-3 justify-center mo-stagger" use:staggerChildren>
 		{#each siteConfig.bio.links as link}
 			{@const isLocalImage = link.icon.startsWith('/')}
@@ -184,12 +184,12 @@
 				</Button>
 			</a>
 		{/each}
-	</div>
-	
-	<div class="mo-fade-in" use:fadeIn>
-		<Separator class="max-w-xs" />
+		<div class="w-full flex justify-center">
+			<Separator class="max-w-xs" />
+		</div>
 	</div>
 
+	<!-- 导航按钮 + 分隔线 -->
 	<div class="flex flex-wrap gap-3 justify-center mo-stagger" use:staggerChildren>
 		{#each siteConfig.navLinks as link}
 			{@const isExternal = link.href.startsWith('http')}
@@ -222,10 +222,9 @@
 				Cookie 设置
 			</Button>
 		</a>
-	</div>
-
-	<div class="mo-fade-in" use:fadeIn>
-		<Separator class="max-w-xs" />
+		<div class="w-full flex justify-center">
+			<Separator class="max-w-xs" />
+		</div>
 	</div>
 
 	<SponsorBanners />
