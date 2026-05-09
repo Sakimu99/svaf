@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Separator } from '$lib/components/ui/separator';
 	import { siteConfig } from '$lib/config/site';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
@@ -186,9 +185,7 @@
 		{/each}
 	</div>
 
-	<div class="flex justify-center mo-fade-in" use:fadeIn>
-		<Separator class="max-w-xs" />
-	</div>
+	<hr class="mx-auto max-w-xs h-px bg-border border-0 mo-fade-in" use:fadeIn />
 
 	<!-- 导航按钮 -->
 	<div class="flex flex-wrap gap-3 justify-center mo-stagger" use:staggerChildren>
@@ -225,9 +222,7 @@
 		</a>
 	</div>
 
-	<div class="flex justify-center mo-fade-in" use:fadeIn>
-		<Separator class="max-w-xs" />
-	</div>
+	<hr class="mx-auto max-w-xs h-px bg-border border-0 mo-fade-in" use:fadeIn />
 
 	<SponsorBanners />
 </div>
