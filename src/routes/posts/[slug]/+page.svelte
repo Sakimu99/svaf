@@ -8,7 +8,7 @@
 	import Giscus from '$lib/components/Giscus.svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
 	import PostToc from '$lib/components/PostToc.svelte';
-	import { highlightCodeBlocksIn } from '$lib/utils/highlight';
+	import { highlightCodeBlocksIn, switchHighlightTheme } from '$lib/utils/highlight';
 	import { renderMermaidIn, rerenderAllMermaid } from '$lib/utils/mermaid';
 	import { isDark } from '$lib/stores/theme';
 	import { fadeInUp, fadeIn } from '$lib/utils/motion';
@@ -121,10 +121,11 @@
 		})();
 	});
 
-	// 主题切换时重新渲染 mermaid
+	// 主题切换时重新渲染 mermaid 和代码高亮
 	$effect(() => {
 		void $isDark;
 		rerenderAllMermaid();
+		switchHighlightTheme();
 	});
 </script>
 

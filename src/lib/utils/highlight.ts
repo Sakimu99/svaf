@@ -201,6 +201,11 @@ async function preloadLangs() {
 	return langsPromise;
 }
 
+/** 切换高亮主题（明暗切换时调用） */
+export function switchHighlightTheme() {
+	ensureTheme();
+}
+
 /** 扫描容器内 <pre><code> 并高亮。 */
 export async function highlightCodeBlocksIn(container: HTMLElement | null | undefined) {
 	console.log('[hljs] highlightCodeBlocksIn called, container:', container);
