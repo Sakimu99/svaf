@@ -123,7 +123,9 @@
 	<div class="fixed top-4 right-4 z-50">
 		<ThemeToggle />
 	</div>
-	<Announcement />
+	<div class="mo-fade-in-up" use:fadeInUp>
+		<Announcement />
+	</div>
 
 	<div class="live-avatar-container mo-fade-in-up" use:fadeInUp>
 		{#if isLive}
