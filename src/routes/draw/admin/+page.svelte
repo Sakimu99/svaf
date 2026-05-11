@@ -341,6 +341,7 @@
 	}
 
 	async function handleRemoveFeatured(path: string) {
+		if (!confirm(`确定要移除精选图片？\n${path}`)) return;
 		loading = true;
 		try {
 			const res = await admin.removeFeatured(path);
