@@ -31,7 +31,9 @@
 
 	// Form state
 	let workflowPath = $state('');
+	let workflowName = $state('');
 	let styleTags = $state('');
+	let styleName = $state('');
 	let directPrompt = $state('');
 	let negativePrompt = $state('');
 	let nlPrompt = $state('');
@@ -104,6 +106,12 @@
 
 	function handleWorkflowSelect(wf: DrawWorkflow) {
 		workflowPath = wf.path;
+		workflowName = wf.path.replace('.json', '');
+	}
+
+	function handleStyleSelect(tags: string, name: string) {
+		styleTags = tags;
+		styleName = name;
 	}
 
 	function handlePromptLoad(positive: string, negative: string) {
@@ -207,6 +215,11 @@
 			{#if globalBusy}
 				<Badge variant="default" class="text-xs animate-pulse">生成中</Badge>
 			{/if}
+			{#if workflowName || styleName}
+				<span class="text-xs text-muted-foreground">
+					{#if workflowName}{workflowName}{/if}{#if workflowName && styleName} / {/if}{#if styleName}{styleName}{/if}
+				</span>
+			{/if}
 		</div>
 	</div>
 
@@ -252,7 +265,7 @@
 		<TabsContent value="generate" class="space-y-4 mt-4">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<WorkflowSelector bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} />
-				<StyleSelector bind:value={styleTags} />
+				<StyleSelector bind:value={styleTags} onselect={handleStyleSelect} />
 			</div>
 
 			<PromptForm
