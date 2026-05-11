@@ -13,7 +13,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv } from '$lib/draw/stores/env';
 	import * as admin from '$lib/draw/api/admin';
-	import { getImageProxyUrl, getImageUrl } from '$lib/draw/api/client';
+	import { getImageProxyUrl, getImageUrl, getThumbnailUrl } from '$lib/draw/api/client';
 	import type {
 		AdminRecentImage,
 		AdminReport,
@@ -66,15 +66,20 @@
 	let styleEditName = $state('');
 	let styleEditTags = $state('');
 	let styleEditImage = $state('');
+	let styleRenaming = $state(-1);
+	let styleRenameName = $state('');
+	let styleRenameTags = $state('');
 
 	// Workflows
 	let workflowFiles = $state<string[]>([]);
 	let workflowMeta = $state<{ workflow: string; thumbnail?: string; lora_link?: string; category?: string }[]>([]);
-	let wfRenameOld = $state('');
-	let wfRenameNew = $state('');
+	let wfRenaming = $state('');
+	let wfRenameValue = $state('');
 	let wfMetaEditWf = $state('');
 	let wfMetaEditCat = $state('');
 	let wfMetaEditLora = $state('');
+	let wfMetaEditLoraLink = $state('');
+	let wfUploadTarget = $state('');
 
 	// Lightbox
 	let lbOpen = $state(false);
@@ -377,8 +382,35 @@
 		styleEditImage = styles[i].image || '';
 	}
 
+	function startStyleRename(i: number) {
+		styleRenaming = i;
+		styleRenameName = styles[i].name;
+		styleRenameTags = styles[i].tags;
+	}
+
 	function cancelStyleEdit() {
 		styleEditIndex = -1;
+	}
+
+	async function commitStyleRename() {
+		if (styleRenaming < 0) return;
+		const updated = [...styles];
+		updated[styleRenaming] = {
+			...updated[styleRenaming],
+			name: styleRenameName,
+			tags: styleRenameTags || updated[styleRenaming].tags
+		};
+		loading = true;
+		try {
+			const res = await admin.updateStyles(updated);
+			styles = res.styles;
+			styleRenaming = -1;
+			showMsg('success', '画风已更新');
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '保存失败');
+		} finally {
+			loading = false;
+		}
 	}
 
 	async function saveStyle() {
@@ -409,7 +441,7 @@
 		try {
 			const res = await admin.updateStyles(updated);
 			styles = res.styles;
-			editStyle(styles.length - 1);
+			startStyleRename(styles.length - 1);
 			showMsg('success', '已添加');
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '添加失败');
@@ -426,6 +458,7 @@
 			const res = await admin.updateStyles(updated);
 			styles = res.styles;
 			if (styleEditIndex === i) styleEditIndex = -1;
+			if (styleRenaming === i) styleRenaming = -1;
 			showMsg('success', '已删除');
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '删除失败');
@@ -434,14 +467,17 @@
 		}
 	}
 
-	async function handleStyleThumbnail(e: Event) {
+	async function handleStyleThumbnailUpload(e: Event, i: number) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
 		loading = true;
 		try {
 			const res = await admin.uploadStyleThumbnail(file);
-			styleEditImage = res.filename;
-			showMsg('success', '缩略图已上传');
+			const updated = [...styles];
+			updated[i] = { ...updated[i], image: res.filename };
+			const metaRes = await admin.updateStyles(updated);
+			styles = metaRes.styles;
+			showMsg('success', '缩略图已上传并关联');
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '上传失败');
 		} finally {
@@ -450,6 +486,10 @@
 	}
 
 	// --- Workflows ---
+
+	function getWfMeta(wf: string) {
+		return workflowMeta.find((m) => m.workflow === wf);
+	}
 
 	async function loadWorkflowFiles() {
 		try {
@@ -474,14 +514,21 @@
 		loadWorkflowMeta();
 	}
 
-	async function handleWfRename() {
-		if (!wfRenameOld || !wfRenameNew) return;
+	function startWfRename(wf: string) {
+		wfRenaming = wf;
+		wfRenameValue = wf;
+	}
+
+	async function commitWfRename() {
+		if (!wfRenaming || !wfRenameValue || wfRenaming === wfRenameValue) {
+			wfRenaming = '';
+			return;
+		}
 		loading = true;
 		try {
-			await admin.renameWorkflow(wfRenameOld, wfRenameNew);
+			await admin.renameWorkflow(wfRenaming, wfRenameValue);
 			showMsg('success', '重命名成功');
-			wfRenameOld = '';
-			wfRenameNew = '';
+			wfRenaming = '';
 			loadWorkflowsAll();
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '重命名失败');
@@ -492,7 +539,7 @@
 
 	function editWfMeta(wf: string) {
 		wfMetaEditWf = wf;
-		const existing = workflowMeta.find((m) => m.workflow === wf);
+		const existing = getWfMeta(wf);
 		wfMetaEditCat = existing?.category || '';
 		wfMetaEditLora = existing?.lora_link || '';
 	}
@@ -503,7 +550,7 @@
 		const entry: { workflow: string; category?: string; lora_link?: string; thumbnail?: string } = { workflow: wfMetaEditWf };
 		if (wfMetaEditCat) entry.category = wfMetaEditCat;
 		if (wfMetaEditLora) entry.lora_link = wfMetaEditLora;
-		const existing = workflowMeta.find((m) => m.workflow === wfMetaEditWf);
+		const existing = getWfMeta(wfMetaEditWf);
 		if (existing?.thumbnail) entry.thumbnail = existing.thumbnail;
 		updated.push(entry);
 		loading = true;
@@ -519,17 +566,30 @@
 		}
 	}
 
-	async function handleWfThumbnail(e: Event) {
+	async function handleWfThumbnailUpload(e: Event, wf: string) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
 		loading = true;
 		try {
 			const res = await admin.uploadWfThumbnail(file);
-			showMsg('success', `缩略图已上传: ${res.filename}`);
+			// Auto-update meta with new thumbnail filename
+			const base = wf.replace('.json', '');
+			const updated = workflowMeta.filter((m) => m.workflow !== wf);
+			const existing = getWfMeta(wf);
+			updated.push({
+				workflow: wf,
+				thumbnail: res.filename || base,
+				category: existing?.category || '',
+				lora_link: existing?.lora_link || ''
+			});
+			const metaRes = await admin.updateWorkflowMeta(updated);
+			workflowMeta = metaRes.workflow_meta;
+			showMsg('success', '缩略图已上传并关联');
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '上传失败');
 		} finally {
 			loading = false;
+			wfUploadTarget = '';
 		}
 	}
 
@@ -1020,6 +1080,7 @@
 							画风管理
 							<Badge variant="secondary">{styles.length}</Badge>
 						</CardTitle>
+						<CardDescription>点击缩略图上传图片，双击名称编辑别名和标签</CardDescription>
 					</CardHeader>
 					<CardContent class="space-y-3">
 						<div class="flex flex-wrap gap-2">
@@ -1031,15 +1092,16 @@
 							</Button>
 						</div>
 
+						<!-- Edit panel for detailed editing -->
 						{#if styleEditIndex >= 0 && styles[styleEditIndex]}
 							<Card class="border-primary">
 								<CardHeader class="pb-2">
-									<CardTitle class="text-sm">编辑画风</CardTitle>
+									<CardTitle class="text-sm">编辑画风详情</CardTitle>
 								</CardHeader>
 								<CardContent class="space-y-2">
 									<div class="flex gap-2">
 										<div class="flex-1 space-y-1">
-											<Label class="text-xs">名称</Label>
+											<Label class="text-xs">名称（别名）</Label>
 											<Input bind:value={styleEditName} placeholder="画风名称" />
 										</div>
 										<div class="flex-1 space-y-1">
@@ -1049,15 +1111,7 @@
 									</div>
 									<div class="space-y-1">
 										<Label class="text-xs">缩略图文件名</Label>
-										<div class="flex gap-2">
-											<Input bind:value={styleEditImage} placeholder="缩略图文件名" class="flex-1" />
-											<label class="shrink-0">
-												<input type="file" accept="image/*" class="hidden" onchange={handleStyleThumbnail} />
-												<Button variant="outline" size="sm" as="span">
-													<Icon icon="mdi:upload" class="size-4 mr-1" />上传
-												</Button>
-											</label>
-										</div>
+										<Input bind:value={styleEditImage} placeholder="缩略图文件名" />
 									</div>
 									<div class="flex gap-2">
 										<Button size="sm" onclick={saveStyle} disabled={loading}>
@@ -1069,29 +1123,70 @@
 							</Card>
 						{/if}
 
+						<!-- Style grid -->
 						{#if styles.length === 0}
 							<div class="text-sm text-muted-foreground py-4 text-center">无画风</div>
 						{:else}
-							<div class="space-y-1">
+							<div class="flex flex-wrap gap-2">
 								{#each styles as s, i}
-									<div class="flex items-center gap-2 border rounded-md px-3 py-2 {styleEditIndex === i ? 'border-primary bg-primary/5' : ''}">
-										{#if s.thumbnail_url}
-											<img src="{currentBaseUrl}{s.thumbnail_url}" alt="" class="size-8 rounded object-cover shrink-0" />
-										{:else}
-											<div class="size-8 rounded bg-muted flex items-center justify-center shrink-0">
-												<Icon icon="mdi:palette-outline" class="size-4 text-muted-foreground" />
+									<div class="inline-flex flex-col items-center gap-1 p-1.5 rounded-md border border-border hover:bg-accent transition-all group {styleRenaming === i ? 'border-primary ring-1 ring-primary/30' : ''}">
+										<!-- Thumbnail: click to upload -->
+										<button
+											class="relative size-12 rounded overflow-hidden shrink-0 bg-muted flex items-center justify-center cursor-pointer"
+											onclick={() => { document.getElementById(`style-thumb-${i}`)?.click(); }}
+											title="点击上传缩略图"
+										>
+											{#if s.thumbnail_url}
+												<img
+													src="{currentBaseUrl}{s.thumbnail_url}"
+													alt=""
+													class="w-full h-full object-cover"
+													loading="lazy"
+												/>
+											{:else}
+												<Icon icon="mdi:image-plus-outline" class="size-5 text-muted-foreground" />
+											{/if}
+											<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+												<Icon icon="mdi:upload" class="size-4 text-white" />
 											</div>
+										</button>
+										<input
+											type="file"
+											accept="image/*"
+											class="hidden"
+											id="style-thumb-{i}"
+											onchange={(e) => handleStyleThumbnailUpload(e, i)}
+										/>
+
+										<!-- Name: double-click to rename -->
+										{#if styleRenaming === i}
+											<div class="flex flex-col items-center gap-0.5 w-24">
+												<input
+													type="text"
+													class="w-full text-xs text-center border rounded px-1 py-0.5 bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+													bind:value={styleRenameName}
+													placeholder="别名"
+													onkeydown={(e) => { if (e.key === 'Enter') commitStyleRename(); if (e.key === 'Escape') styleRenaming = -1; }}
+												/>
+												<input
+													type="text"
+													class="w-full text-[10px] text-center border rounded px-1 py-0.5 bg-background font-mono focus:outline-none focus:ring-1 focus:ring-ring"
+													bind:value={styleRenameTags}
+													placeholder="tags"
+													onkeydown={(e) => { if (e.key === 'Enter') commitStyleRename(); if (e.key === 'Escape') styleRenaming = -1; }}
+													onblur={commitStyleRename}
+												/>
+											</div>
+										{:else}
+											<span
+												class="text-xs text-center truncate max-w-24 cursor-default"
+												title="双击编辑 | 右键详情"
+												ondblclick={() => startStyleRename(i)}
+												oncontextmenu={(e) => { e.preventDefault(); editStyle(i); }}
+											>
+												{s.name || s.tags}
+											</span>
 										{/if}
-										<div class="flex-1 min-w-0">
-											<div class="text-sm font-medium truncate">{s.name || '(无名)'}</div>
-											<div class="text-xs text-muted-foreground font-mono truncate">{s.tags}</div>
-										</div>
-										<Button size="sm" variant="ghost" onclick={() => editStyle(i)}>
-											<Icon icon="mdi:pencil" class="size-4" />
-										</Button>
-										<Button size="sm" variant="ghost" onclick={() => deleteStyle(i)}>
-											<Icon icon="mdi:delete" class="size-4 text-destructive" />
-										</Button>
 									</div>
 								{/each}
 							</div>
@@ -1104,66 +1199,22 @@
 			<TabsContent value="workflows" class="mt-4 space-y-4">
 				<Card>
 					<CardHeader>
-						<CardTitle class="text-base">工作流文件</CardTitle>
-						<CardDescription>共 {workflowFiles.length} 个工作流</CardDescription>
-					</CardHeader>
-					<CardContent class="space-y-3">
-						<div class="flex flex-wrap gap-2">
-							<Button variant="outline" size="sm" onclick={loadWorkflowsAll} disabled={loading}>
-								<Icon icon="mdi:refresh" class="size-4 mr-1" />刷新
-							</Button>
-							<label>
-								<input type="file" accept="image/*" class="hidden" onchange={handleWfThumbnail} />
-								<Button variant="outline" size="sm" as="span">
-									<Icon icon="mdi:upload" class="size-4 mr-1" />上传缩略图
-								</Button>
-							</label>
-						</div>
-
-						<!-- Rename -->
-						<div class="border rounded-md p-3 space-y-2">
-							<Label class="text-xs font-medium">重命名工作流</Label>
-							<div class="flex gap-2">
-								<Input bind:value={wfRenameOld} placeholder="旧文件名（如 a.json）" class="flex-1" />
-								<Input bind:value={wfRenameNew} placeholder="新文件名（如 b.json）" class="flex-1" />
-								<Button size="sm" onclick={handleWfRename} disabled={loading || !wfRenameOld || !wfRenameNew}>
-									<Icon icon="mdi:rename" class="size-4 mr-1" />重命名
-								</Button>
-							</div>
-						</div>
-
-						{#if workflowFiles.length > 0}
-							<div class="max-h-64 overflow-y-auto space-y-0.5">
-								{#each workflowFiles as wf}
-									<div class="text-xs font-mono px-2 py-1 rounded hover:bg-muted flex items-center gap-2">
-										<span class="flex-1 truncate">{wf}</span>
-										<button
-											class="text-muted-foreground hover:text-foreground"
-											onclick={() => { wfRenameOld = wf; }}
-											title="填入旧文件名"
-										>
-											<Icon icon="mdi:arrow-left-bold" class="size-3.5" />
-										</button>
-									</div>
-								{/each}
-							</div>
-						{/if}
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
 						<CardTitle class="text-base flex items-center gap-2">
-							工作流元数据
-							<Badge variant="secondary">{workflowMeta.length}</Badge>
+							工作流管理
+							<Badge variant="secondary">{workflowFiles.length}</Badge>
 						</CardTitle>
-						<CardDescription>分类、缩略图、Lora 链接</CardDescription>
+						<CardDescription>点击缩略图上传图片，双击名称重命名</CardDescription>
 					</CardHeader>
 					<CardContent class="space-y-3">
+						<Button variant="outline" size="sm" onclick={loadWorkflowsAll} disabled={loading}>
+							<Icon icon="mdi:refresh" class="size-4 mr-1" />刷新
+						</Button>
+
+						<!-- Metadata edit panel -->
 						{#if wfMetaEditWf}
 							<Card class="border-primary">
 								<CardHeader class="pb-2">
-									<CardTitle class="text-sm">编辑: {wfMetaEditWf}</CardTitle>
+									<CardTitle class="text-sm">编辑元数据: {wfMetaEditWf.replace('.json', '')}</CardTitle>
 								</CardHeader>
 								<CardContent class="space-y-2">
 									<div class="flex gap-2">
@@ -1186,26 +1237,65 @@
 							</Card>
 						{/if}
 
-						{#if workflowMeta.length === 0}
-							<div class="text-sm text-muted-foreground py-4 text-center">无元数据</div>
-						{:else}
-							<div class="max-h-64 overflow-y-auto space-y-1">
-								{#each workflowMeta as m}
-									<div class="flex items-center gap-2 border rounded-md px-3 py-2 {wfMetaEditWf === m.workflow ? 'border-primary bg-primary/5' : ''}">
-										<div class="flex-1 min-w-0">
-											<div class="text-sm font-mono truncate">{m.workflow}</div>
-											<div class="text-xs text-muted-foreground">
-												{#if m.category}<span class="mr-2">分类: {m.category}</span>{/if}
-												{#if m.lora_link}<span>Lora: {m.lora_link}</span>{/if}
-												{#if !m.category && !m.lora_link}<span class="italic">无元数据</span>{/if}
+						<!-- Workflow grid -->
+						{#if workflowFiles.length > 0}
+							<div class="flex flex-wrap gap-2">
+								{#each workflowFiles as wf}
+									{@const meta = getWfMeta(wf)}
+									<div class="inline-flex flex-col items-center gap-1 p-1.5 rounded-md border border-border hover:bg-accent transition-all group">
+										<!-- Thumbnail: click to upload -->
+										<button
+											class="relative size-12 rounded overflow-hidden shrink-0 bg-muted flex items-center justify-center cursor-pointer"
+											onclick={() => { document.getElementById(`wf-thumb-${wf}`)?.click(); }}
+											title="点击上传缩略图"
+										>
+											{#if meta?.thumbnail}
+												<img
+													src={getThumbnailUrl(wf)}
+													alt=""
+													class="w-full h-full object-cover"
+													loading="lazy"
+												/>
+											{:else}
+												<Icon icon="mdi:image-plus-outline" class="size-5 text-muted-foreground" />
+											{/if}
+											<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+												<Icon icon="mdi:upload" class="size-4 text-white" />
 											</div>
-										</div>
-										<Button size="sm" variant="ghost" onclick={() => editWfMeta(m.workflow)}>
-											<Icon icon="mdi:pencil" class="size-4" />
-										</Button>
+										</button>
+										<!-- Hidden file input per workflow -->
+										<input
+											type="file"
+											accept="image/*"
+											class="hidden"
+											id="wf-thumb-{wf}"
+											onchange={(e) => handleWfThumbnailUpload(e, wf)}
+										/>
+
+										<!-- Name: double-click to rename -->
+										{#if wfRenaming === wf}
+											<input
+												type="text"
+												class="w-24 text-xs text-center border rounded px-1 py-0.5 bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+												bind:value={wfRenameValue}
+												onkeydown={(e) => { if (e.key === 'Enter') commitWfRename(); if (e.key === 'Escape') wfRenaming = ''; }}
+												onblur={commitWfRename}
+											/>
+										{:else}
+											<span
+												class="text-xs text-center truncate max-w-24 cursor-default"
+												title="双击重命名 | 右键编辑元数据"
+												ondblclick={() => startWfRename(wf)}
+												oncontextmenu={(e) => { e.preventDefault(); editWfMeta(wf); }}
+											>
+												{wf.replace('.json', '')}
+											</span>
+										{/if}
 									</div>
 								{/each}
 							</div>
+						{:else}
+							<div class="text-sm text-muted-foreground py-4 text-center">无工作流</div>
 						{/if}
 					</CardContent>
 				</Card>
