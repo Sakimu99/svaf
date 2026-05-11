@@ -22,7 +22,8 @@
 		AdminLimits,
 		AdminMaintenance,
 		AdminAnnouncement,
-		AdminLlmConfig
+		AdminLlmConfig,
+		DrawRecommendation
 	} from '$lib/draw/types';
 
 	let authToken = $state<string | null>(null);
@@ -47,6 +48,10 @@
 
 	// Reports
 	let reports = $state<AdminReport[]>([]);
+
+	// Recommendations
+	let recommendations = $state<DrawRecommendation[]>([]);
+	let recRejectReason = $state('');
 
 	// Featured
 	let featuredPaths = $state<string[]>([]);
@@ -278,6 +283,32 @@
 			await admin.resolveReport(id, action);
 			showMsg('success', `举报已处理：${action}`);
 			reports = reports.filter((r) => r.id !== id);
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '处理失败');
+		} finally {
+			loading = false;
+		}
+	}
+
+	async function loadRecommendations() {
+		loading = true;
+		try {
+			const res = await admin.fetchRecommendations();
+			recommendations = res.items;
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '加载失败');
+		} finally {
+			loading = false;
+		}
+	}
+
+	async function resolveRec(recId: string, action: 'approve' | 'reject') {
+		loading = true;
+		try {
+			await admin.resolveRecommendation(recId, action, action === 'reject' ? recRejectReason : undefined);
+			showMsg('success', action === 'approve' ? '已通过' : '已拒绝');
+			recommendations = recommendations.filter((r) => r.id !== recId);
+			recRejectReason = '';
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '处理失败');
 		} finally {
@@ -686,6 +717,9 @@
 			case 'reports':
 				loadReports();
 				break;
+			case 'recommendations':
+				loadRecommendations();
+				break;
 			case 'featured':
 				loadFeatured();
 				break;
@@ -749,6 +783,9 @@
 				</TabsTrigger>
 				<TabsTrigger value="reports" class="text-xs">
 					<Icon icon="mdi:flag-outline" class="size-3.5 mr-1" />举报
+				</TabsTrigger>
+				<TabsTrigger value="recommendations" class="text-xs">
+					<Icon icon="mdi:star-plus-outline" class="size-3.5 mr-1" />自荐
 				</TabsTrigger>
 				<TabsTrigger value="featured" class="text-xs">
 					<Icon icon="mdi:star-outline" class="size-3.5 mr-1" />精选
@@ -994,6 +1031,79 @@
 											</Button>
 											<Button size="sm" variant="ghost" onclick={() => handleResolveReport(r.id, 'dismiss')} disabled={loading}>
 												忽略
+											</Button>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</CardContent>
+				</Card>
+			</TabsContent>
+
+			<!-- Recommendations -->
+			<TabsContent value="recommendations" class="mt-4">
+				<Card>
+					<CardHeader>
+						<CardTitle class="text-base flex items-center gap-2">
+							自荐审核
+							{#if recommendations.length > 0}
+								<Badge variant="secondary">{recommendations.length}</Badge>
+							{/if}
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Button variant="outline" size="sm" onclick={loadRecommendations} disabled={loading} class="mb-3">
+							<Icon icon="mdi:refresh" class="size-4 mr-1" />刷新
+						</Button>
+						{#if recommendations.length === 0}
+							<div class="text-sm text-muted-foreground py-4 text-center">无待审核自荐</div>
+						{:else}
+							<div class="space-y-3">
+								{#each recommendations as rec}
+									<div class="border rounded-lg p-3 space-y-2">
+										<div class="flex items-start justify-between gap-2">
+											<div class="space-y-1 min-w-0">
+												<div class="flex items-center gap-2">
+													<Badge variant="outline" class="text-xs">ID: {rec.id.slice(0, 8)}</Badge>
+													<span class="text-xs text-muted-foreground">{formatTime(rec.timestamp)}</span>
+												</div>
+												<div class="text-xs">
+													<span class="text-muted-foreground">图片：</span>
+													<span class="font-mono">{rec.image_path}</span>
+												</div>
+												<div class="text-xs">
+													<span class="text-muted-foreground">用户ID：</span>{rec.user_id}
+												</div>
+												{#if rec.user_reason}
+													<div class="text-xs">
+														<span class="text-muted-foreground">理由：</span>{rec.user_reason}
+													</div>
+												{/if}
+											</div>
+											<button
+												class="shrink-0 size-12 rounded overflow-hidden border"
+												onclick={() => openLb(rec.image_path)}
+											>
+												<img
+													src={getImageProxyUrl(rec.image_path)}
+													alt=""
+													class="w-full h-full object-cover"
+													loading="lazy"
+												/>
+											</button>
+										</div>
+										<div class="flex flex-wrap gap-1.5 items-center">
+											<Button size="sm" variant="default" onclick={() => resolveRec(rec.id, 'approve')} disabled={loading}>
+												通过
+											</Button>
+											<Input
+												bind:value={recRejectReason}
+												placeholder="拒绝理由（可选）"
+												class="h-8 text-xs flex-1 min-w-[140px]"
+											/>
+											<Button size="sm" variant="destructive" onclick={() => resolveRec(rec.id, 'reject')} disabled={loading}>
+												拒绝
 											</Button>
 										</div>
 									</div>
