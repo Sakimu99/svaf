@@ -40,14 +40,14 @@
 			</Button>
 		{/snippet}
 	</Dialog.Trigger>
-	<Dialog.Content class="sm:max-w-full max-w-full w-screen h-screen max-h-screen m-0 rounded-none p-4 flex flex-col">
+	<Dialog.Content class="sm:max-w-full max-w-full w-screen h-screen max-h-screen m-0 rounded-none p-4 !grid-rows-[auto_1fr]">
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<Icon icon="mdi:cog-outline" class="size-5" />
 				选择工作流
 			</Dialog.Title>
 		</Dialog.Header>
-		<div class="flex-1 overflow-y-auto">
+		<div class="overflow-y-auto min-h-0">
 			<WorkflowSelector bind:value onselect={handleSelect} onpromptload={handlePromptLoad} showTitle={false} />
 		</div>
 	</Dialog.Content>
