@@ -107,6 +107,16 @@ export interface DrawOutputItem {
 	creator_id?: string;
 }
 
+export interface DrawRecommendation {
+	id: string;
+	image_path: string;
+	user_id: number;
+	timestamp: number;
+	status: 'pending' | 'approved' | 'rejected';
+	user_reason?: string | null;
+	admin_reason?: string | null;
+}
+
 export interface DrawOutputListResponse {
 	output_dir: string;
 	archive_dir: string;

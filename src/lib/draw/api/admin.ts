@@ -6,7 +6,8 @@ import type {
 	AdminMaintenance,
 	AdminAnnouncement,
 	AdminGcResult,
-	AdminLlmConfig
+	AdminLlmConfig,
+	DrawRecommendation
 } from '../types';
 
 // --- Featured ---
@@ -227,5 +228,16 @@ export async function updateLlmConfig(partial: Partial<AdminLlmConfig>) {
 export async function testLlmConfig() {
 	return drawRequest<{ ok: boolean; provider: string; reply?: string; error?: string }>('/api/draw/admin/llm_config/test', {
 		method: 'POST'
+	});
+}
+
+export async function fetchRecommendations() {
+	return drawRequest<{ items: DrawRecommendation[]; total: number }>('/api/draw/admin/recommendations');
+}
+
+export async function resolveRecommendation(recId: string, action: 'approve' | 'reject', reason?: string) {
+	return drawRequest<{ ok: boolean; recommendation: DrawRecommendation }>('/api/draw/admin/recommendations/resolve', {
+		method: 'POST',
+		json: { rec_id: recId, action, reason: reason || '' }
 	});
 }

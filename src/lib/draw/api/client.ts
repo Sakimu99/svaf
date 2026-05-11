@@ -1,7 +1,7 @@
 import { forumAuth } from '$lib/forum/stores/auth';
 import { drawEnv } from '../stores/env';
 import { DrawApiError } from '../types';
-import type { DrawApiErrorPayload } from '../types';
+import type { DrawApiErrorPayload, DrawRecommendation } from '../types';
 import { get } from 'svelte/store';
 
 export interface DrawRequestOptions extends RequestInit {
@@ -154,6 +154,17 @@ export async function forkOutputImage(path: string) {
 		loras: string[];
 		format: string;
 	}>('/api/output/fork', { method: 'POST', json: { path } });
+}
+
+export async function recommendImage(imagePath: string, reason?: string) {
+	return drawRequest<{ ok: boolean; recommendation: DrawRecommendation }>('/api/draw/recommend', {
+		method: 'POST',
+		json: { image_path: imagePath, reason: reason || '' }
+	});
+}
+
+export async function fetchMyRecommendations() {
+	return drawRequest<{ items: DrawRecommendation[]; total: number }>('/api/draw/my-recommendations');
 }
 
 function _appendToken(url: URL): string {

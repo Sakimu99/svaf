@@ -5,6 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
@@ -379,9 +380,54 @@
 								我的图片
 								<span class="text-xs text-muted-foreground">({myImages.length}/{myImagesTotal})</span>
 							</h3>
-							<Button variant="ghost" size="sm" onclick={() => { myImagesLoaded = false; loadMyImages(); }} disabled={myImagesLoading}>
-								<Icon icon="mdi:refresh" class="size-4" />
-							</Button>
+							<div class="flex items-center gap-1">
+								<Dialog.Root>
+									<Dialog.Trigger>
+										{#snippet child({ props })}
+											<Button variant="outline" size="sm" onclick={loadMyRecommendations} {...props}>
+												<Icon icon="mdi:star-plus-outline" class="size-4" />
+												自荐
+											</Button>
+										{/snippet}
+									</Dialog.Trigger>
+									<Dialog.Content class="sm:max-w-lg">
+										<Dialog.Header>
+											<Dialog.Title class="flex items-center gap-2">
+												<Icon icon="mdi:star-plus-outline" class="size-5" />
+												我的自荐
+											</Dialog.Title>
+										</Dialog.Header>
+										<div class="max-h-96 overflow-y-auto space-y-2">
+											{#if !myRecsLoaded}
+												<div class="text-xs text-muted-foreground py-4 text-center">加载中...</div>
+											{:else if myRecommendations.length === 0}
+												<div class="text-xs text-muted-foreground py-4 text-center">暂无自荐记录</div>
+											{:else}
+												{#each myRecommendations as rec}
+													<div class="border rounded-lg p-3 space-y-1">
+														<div class="flex items-center gap-2 text-xs">
+															<img src={getImageProxyUrl(rec.image_path)} alt="" class="size-10 rounded object-cover border shrink-0" />
+															<span class="truncate flex-1">{rec.image_path}</span>
+															<Badge variant={rec.status === "approved" ? "default" : rec.status === "rejected" ? "destructive" : "secondary"} class="text-[10px] shrink-0">
+																{recStatusBadge(rec.status)}
+															</Badge>
+														</div>
+														{#if rec.user_reason}
+															<div class="text-[10px] text-muted-foreground">理由: {rec.user_reason}</div>
+														{/if}
+														{#if rec.admin_reason}
+															<div class="text-[10px] text-muted-foreground">管理员: {rec.admin_reason}</div>
+														{/if}
+													</div>
+												{/each}
+											{/if}
+										</div>
+									</Dialog.Content>
+								</Dialog.Root>
+								<Button variant="ghost" size="sm" onclick={() => { myImagesLoaded = false; loadMyImages(); }} disabled={myImagesLoading}>
+									<Icon icon="mdi:refresh" class="size-4" />
+								</Button>
+							</div>
 						</div>
 
 						{#if myImagesLoading}
@@ -407,34 +453,7 @@
 							</div>
 						{/if}
 
-					<!-- 自荐区 -->
-					<div class="space-y-2 mt-4">
-						<h3 class="text-sm font-medium flex items-center gap-1.5">
-							<Icon icon="mdi:star-plus-outline" class="size-4" />
-							我的自荐
-						</h3>
-						{#if !myRecsLoaded}
-							<div class="text-xs text-muted-foreground py-2">加载中...</div>
-						{:else if myRecommendations.length === 0}
-							<div class="text-xs text-muted-foreground">暂无自荐记录</div>
-						{:else}
-							<div class="space-y-1.5">
-								{#each myRecommendations as rec}
-									<div class="flex items-center gap-2 text-xs">
-										<img src={getImageProxyUrl(rec.image_path)} alt="" class="size-10 rounded object-cover border" />
-										<span class="truncate flex-1">{rec.image_path}</span>
-										<Badge variant={rec.status === "approved" ? "default" : rec.status === "rejected" ? "destructive" : "secondary"} class="text-[10px]">
-											{recStatusBadge(rec.status)}
-										</Badge>
-									</div>
-									{#if rec.admin_reason}
-										<div class="text-[10px] text-muted-foreground ml-12">管理员: {rec.admin_reason}</div>
-									{/if}
-								{/each}
-							</div>
-						{/if}
-					</div>
-					</div>
+						
 				{/if}
 			{/if}
 		</TabsContent>
@@ -462,7 +481,6 @@
 			{/if}
 		</TabsContent>
 	</Tabs>
-</div>
 
 <ImageLightbox
 	open={myLbOpen}

@@ -7,13 +7,15 @@
 		images = [],
 		index = 0,
 		onclose,
-		onfork
+		onfork,
+		onrecommend
 	}: {
 		open?: boolean;
 		images?: { src: string; creator_id?: string }[];
 		index?: number;
 		onclose?: () => void;
 		onfork?: (path: string) => void;
+		onrecommend?: (path: string) => void;
 	} = $props();
 
 	let creatorName = $state('');
@@ -61,6 +63,13 @@
 		const p = getPath(img.src);
 		if (p) onfork?.(p);
 		onclose?.();
+	}
+
+	function recommend() {
+		const img = images[index];
+		if (!img) return;
+		const p = getPath(img.src);
+		if (p) onrecommend?.(p);
 	}
 </script>
 
@@ -131,6 +140,15 @@
 				>
 					<Icon icon="mdi:source-fork" class="size-4" />
 					Fork
+				</button>
+			{/if}
+			{#if onrecommend}
+				<button
+					class="text-white/90 text-sm bg-white/10 px-3 py-1.5 rounded hover:bg-white/20 transition-colors flex items-center gap-1.5"
+					onclick={recommend}
+				>
+					<Icon icon="mdi:star-plus-outline" class="size-4" />
+					自荐
 				</button>
 			{/if}
 			<span class="text-white/50 text-xs">{index + 1} / {images.length}</span>

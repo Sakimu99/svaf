@@ -6,7 +6,7 @@
 	import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
 	import type { DrawOutputItem } from '$lib/draw/types';
 
-	const tip = '精选图片由管理员挑选，展示社区优质作品。';
+	const tip = '精选图片由管理员挑选，展示社区优质作品。仅收录SFW';
 
 	let {
 		onFork
@@ -56,11 +56,12 @@
 		</Button>
 	</div>
 
-	{#if tip}
-		<Alert>
-			<AlertDescription class="text-xs">{tip}</AlertDescription>
-		</Alert>
-	{/if}
+	<Alert>
+		<AlertDescription class="text-xs">
+			{tip}<br />
+			<b>你可以前往“我的”页面自荐自己的图片，管理员审核通过后自动加入精选。</b>
+		</AlertDescription>
+	</Alert>
 
 	{#if loading}
 		<div class="text-xs text-muted-foreground py-8 text-center">加载中...</div>
