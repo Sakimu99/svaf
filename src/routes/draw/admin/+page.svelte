@@ -516,17 +516,23 @@
 
 	function startWfRename(wf: string) {
 		wfRenaming = wf;
-		wfRenameValue = wf;
+		wfRenameValue = wf.replace('.json', '');
 	}
 
 	async function commitWfRename() {
-		if (!wfRenaming || !wfRenameValue || wfRenaming === wfRenameValue) {
+		const newName = wfRenameValue.trim();
+		if (!wfRenaming || !newName) {
+			wfRenaming = '';
+			return;
+		}
+		const newNameFull = newName.endsWith('.json') ? newName : newName + '.json';
+		if (wfRenaming === newNameFull) {
 			wfRenaming = '';
 			return;
 		}
 		loading = true;
 		try {
-			await admin.renameWorkflow(wfRenaming, wfRenameValue);
+			await admin.renameWorkflow(wfRenaming, newNameFull);
 			showMsg('success', '重命名成功');
 			wfRenaming = '';
 			loadWorkflowsAll();
