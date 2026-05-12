@@ -128,4 +128,25 @@
 			{/if}
 		</CardContent>
 	</Card>
+
+	<!-- 生图技巧 -->
+	<Card>
+		<CardHeader class="pb-2">
+			<CardTitle class="text-sm flex items-center gap-1.5">
+				<Icon icon="mdi:lightbulb-outline" class="size-4" />
+				生图技巧
+			</CardTitle>
+		</CardHeader>
+		<CardContent class="space-y-1 text-xs">
+			<a href="https://2x.nz/posts/ai-wife/" target="_blank" class="block text-muted-foreground hover:text-foreground transition-colors">
+				文章：AI 老婆入门指南
+			</a>
+			<a href="https://www.downloadmost.com/NoobAI-XL/danbooru-character/" target="_blank" class="block text-muted-foreground hover:text-foreground transition-colors">
+				角色串：Danbooru 角色标签
+			</a>
+			<a href="https://www.downloadmost.com/NoobAI-XL/danbooru-artist/" target="_blank" class="block text-muted-foreground hover:text-foreground transition-colors">
+				画师串：Danbooru 画师标签
+			</a>
+		</CardContent>
+	</Card>
 </div>
