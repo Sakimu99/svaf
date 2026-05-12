@@ -908,7 +908,7 @@
 							<div class="relative group">
 								<button
 									class="aspect-square rounded-md overflow-hidden border w-full {selectedPaths.has(img.path) ? 'ring-2 ring-primary' : ''}"
-									onclick={() => toggleSelect(img.path)}
+									onclick={() => openLb(img.path)}
 								>
 									<img
 										src={getImageProxyUrl(img.path)}
@@ -917,14 +917,16 @@
 										loading="lazy"
 									/>
 								</button>
+								<div class="absolute top-1 left-1">
+									<input
+										type="checkbox"
+										checked={selectedPaths.has(img.path)}
+										onchange={() => toggleSelect(img.path)}
+										onclick={(e) => e.stopPropagation()}
+										class="size-4 accent-primary opacity-60 group-hover:opacity-100 transition-opacity"
+									/>
+								</div>
 								<div class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-									<button
-										class="p-0.5 rounded bg-black/50 text-white hover:bg-black/70"
-										onclick={(e) => { e.stopPropagation(); openLb(img.path); }}
-										title="查看"
-									>
-										<Icon icon="mdi:eye" class="size-3.5" />
-									</button>
 									<button
 										class="p-0.5 rounded bg-destructive/80 text-white hover:bg-destructive"
 										onclick={(e) => { e.stopPropagation(); handleDeleteOne(img.path); }}
