@@ -7,7 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { forumAuth } from '$lib/forum/stores/auth';
-	import { drawEnv, apiError } from '$lib/draw/stores/env';
+	import { drawEnv, apiError, apiStatus } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
 	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations } from '$lib/draw/api/client';
 	import { consumeFork } from '$lib/draw/stores/fork';
@@ -101,13 +101,19 @@
 	let runWs: WebSocket | null = null;
 
 	// API error state
-	let apiErrorMessage = $state('');
+	let apiErrorMessage = $state("");
+	let apiStatusValue = $state("checking");
 
 	$effect(() => {
 		const unsub = apiError.subscribe((v) => {
 			apiErrorMessage = v || '';
 		});
 		return unsub;
+
+	$effect(() => {
+		const unsub = apiStatus.subscribe((v) => (apiStatusValue = v));
+		return unsub;
+	});
 	});
 
 	// Tab state
@@ -381,6 +387,11 @@
 			{/if}
 			{#if globalBusy}
 				<Badge variant="default" class="text-xs animate-pulse">生成中</Badge>
+			{/if}
+			{#if apiStatusValue === "offline"}
+				<Badge variant="destructive" class="text-xs">API 离线</Badge>
+			{:else if apiStatusValue === "online"}
+				<Badge variant="outline" class="text-xs text-green-500 border-green-500">API 在线</Badge>
 			{/if}
 		</div>
 	</div>
