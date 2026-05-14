@@ -194,7 +194,7 @@
 				<div class="text-xs bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md p-2 whitespace-pre-wrap">{llmFinalPositive}</div>
 				{#if llmFinalNegative}
 					<div class="text-xs font-medium mt-1">负面提示词：</div>
-					<div class="text-xs bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md p-2 whitespace-pre-wrap">{llmFinalNegative}</div>
+					<div class="text-xs bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-md p-2 whitespace-pre-wrap">{llmFinalNegative}</div>
 				{/if}
 			</div>
 		{/if}
