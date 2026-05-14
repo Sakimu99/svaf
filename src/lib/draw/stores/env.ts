@@ -105,15 +105,11 @@ function createEnvStore(): DrawEnvStore {
 
 export const drawEnv: DrawEnvStore = createEnvStore();
 
-let _redirectResolved = false;
-
 /**
  * 探测 API 端点是否有重定向（CDN / 负载均衡），
- * 仅首次调用时真正发起请求，后续直接返回缓存结果。
+ * 每次调用都发起请求，不缓存。
  */
 export async function resolveApiRedirect(): Promise<void> {
-	if (_redirectResolved) return;
-	_redirectResolved = true;
 	const baseUrl = get(drawEnv.baseUrl);
 	console.log(`当前API：${baseUrl}`);
 	try {
