@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';

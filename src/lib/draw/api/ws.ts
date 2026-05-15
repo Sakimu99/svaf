@@ -57,7 +57,8 @@ export interface StatusConnection {
 export function connectStatusWs(
 	baseUrl: string,
 	onMessage: StatusMessageHandler,
-	onOpen?: () => void
+	onOpen?: () => void,
+	onClose?: () => void,
 ): StatusConnection {
 	let ws: WebSocket;
 	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -80,6 +81,7 @@ export function connectStatusWs(
 		};
 
 		ws.onclose = () => {
+			onClose?.();
 			if (!closed) {
 				reconnectTimer = setTimeout(connect, 2000);
 			}

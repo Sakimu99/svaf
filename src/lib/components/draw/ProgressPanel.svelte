@@ -134,7 +134,7 @@
 							>
 								<img
 									src={getImageProxyUrl(img.filename)}
-									alt={img.filename}
+									alt="生成结果"
 									class="w-full object-contain max-h-64"
 									loading="lazy"
 								/>

@@ -4,7 +4,8 @@
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { fetchFeatured, getImageUrl, getImageProxyUrl } from '$lib/draw/api/client';
 	import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
-	import type { DrawOutputItem } from '$lib/draw/types';
+	import { onMount, onDestroy } from 'svelte';
+import type { DrawOutputItem } from '$lib/draw/types';
 
 	const tip = '精选图片由管理员挑选，展示社区优质作品。仅收录SFW';
 
@@ -16,6 +17,12 @@
 
 	let items = $state<DrawOutputItem[]>([]);
 	let loading = $state(true);
+	// Masonry layout
+	let columnCount = $state(4);
+	let imgColumns = $state<string[][]>([[], [], [], []]);
+	let columnHeights: number[] = [0, 0, 0, 0];
+	let sentinelEl: HTMLDivElement | undefined;
+	let io: IntersectionObserver | null = null;
 
 	// Lightbox state
 	let lbOpen = $state(false);
@@ -36,12 +43,84 @@
 		try {
 			const res = await fetchFeatured();
 			items = res.items;
+			columnCount = getColumnCount();
+			imgColumns = Array.from({ length: columnCount }, () => []);
+			columnHeights = new Array(columnCount).fill(0);
+			for (const item of res.items) pushToShortest(item.path);
+			imgColumns = [...imgColumns];
 		} catch {
 			items = [];
 		} finally {
 			loading = false;
 		}
 	}
+
+	function getColumnCount(): number {
+		if (typeof window === 'undefined') return 4;
+		const w = window.innerWidth;
+		if (w >= 1400) return 6;
+		if (w >= 1024) return 5;
+		if (w >= 768) return 4;
+		if (w >= 480) return 3;
+		return 2;
+	}
+
+	function pushToShortest(path: string) {
+		let minIdx = 0;
+		for (let i = 1; i < columnHeights.length; i++) {
+			if (columnHeights[i] < columnHeights[minIdx]) minIdx = i;
+		}
+		imgColumns[minIdx] = [...imgColumns[minIdx], path];
+		columnHeights[minIdx] += 1;
+	}
+
+	function rebuildColumns() {
+		const flat: string[] = [];
+		const idx = new Array(imgColumns.length).fill(0);
+		while (true) {
+			let added = false;
+			for (let c = 0; c < imgColumns.length; c++) {
+				if (idx[c] < imgColumns[c].length) {
+					flat.push(imgColumns[c][idx[c]++]);
+					added = true;
+				}
+			}
+			if (!added) break;
+		}
+		columnCount = getColumnCount();
+		imgColumns = Array.from({ length: columnCount }, () => []);
+		columnHeights = new Array(columnCount).fill(0);
+		for (const p of flat) pushToShortest(p);
+		imgColumns = [...imgColumns];
+	}
+
+	function handleResize() {
+		const old = columnCount;
+		const nu = getColumnCount();
+		if (nu === old) return;
+		columnCount = nu;
+		rebuildColumns();
+	}
+
+	function handleImgLoad(e: Event) {
+		const img = e.currentTarget as HTMLImageElement;
+		if (img.naturalWidth && img.naturalHeight) {
+			img.style.aspectRatio = `${img.naturalWidth / img.naturalHeight}`;
+		}
+	}
+
+	onMount(() => {
+		columnCount = getColumnCount();
+		imgColumns = Array.from({ length: columnCount }, () => []);
+		columnHeights = new Array(columnCount).fill(0);
+		window.addEventListener('resize', handleResize, { passive: true });
+	});
+
+	onDestroy(() => {
+		if (typeof window !== 'undefined') {
+			window.removeEventListener('resize', handleResize);
+		}
+	});
 </script>
 
 <div class="space-y-3">
@@ -68,25 +147,35 @@
 	{:else if items.length === 0}
 		<div class="text-xs text-muted-foreground py-8 text-center">暂无精选图片</div>
 	{:else}
-		<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-			{#each items as item, i}
-			<div class="relative group">
-				<button
-					type="button"
-					class="aspect-square rounded-lg overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer"
-					onclick={() => openLightbox(i)}
-				>
-					<img
-						src={getImageProxyUrl(item.path)}
-						alt={item.path}
-						class="w-full h-full object-cover"
-						loading="lazy"
-					/>
-				</button>
-				<div class="absolute bottom-0 inset-x-0 bg-black/50 text-white text-[10px] px-1 py-0.5 truncate rounded-b-lg">
-					{item.creator_id || '?'}
+		<div class="flex gap-2 items-start">
+			{#each imgColumns as col, ci (ci)}
+				<div class="flex flex-1 flex-col gap-2 min-w-0">
+					{#each col as path (path)}
+						{@const item = items.find(i => i.path === path)}
+						{#if item}
+							<div class="relative group">
+								<button
+									type="button"
+									class="w-full rounded-lg overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer"
+									onclick={() => openLightbox(items.indexOf(item))}
+								>
+									<img
+										src={getImageProxyUrl(item.path)}
+										alt={item.path}
+										loading="lazy"
+										decoding="async"
+										style="aspect-ratio: 1;"
+										onload={handleImgLoad}
+										class="block w-full h-auto bg-muted"
+									/>
+								</button>
+								<div class="absolute bottom-0 inset-x-0 bg-black/50 text-white text-[10px] px-1 py-0.5 truncate rounded-b-lg pointer-events-none">
+									{item.creator_id || '?'}
+								</div>
+							</div>
+						{/if}
+					{/each}
 				</div>
-			</div>
 			{/each}
 		</div>
 	{/if}

@@ -10,13 +10,15 @@
 		onselect,
 		onpromptload,
 		showTitle = true,
-		constrainHeight = true
+		constrainHeight = true,
+		subdir = 'WAI'
 	}: {
 		value?: string;
 		onselect?: (wf: DrawWorkflow) => void;
 		onpromptload?: (positive: string, negative: string) => void;
 		showTitle?: boolean;
 		constrainHeight?: boolean;
+		subdir?: string;
 	} = $props();
 
 	let workflows = $state<DrawWorkflow[]>([]);
@@ -67,7 +69,7 @@
 		loading = true;
 		error = '';
 		try {
-			const res = await fetchWorkflows();
+			const res = await fetchWorkflows(subdir);
 			workflows = res.workflows;
 			categoryOrder = res.category_order;
 		} catch (e) {
@@ -166,7 +168,7 @@
 								{#if loadingPath === wf.path}
 									<Icon icon="mdi:loading" class="size-4 shrink-0 animate-spin" />
 								{/if}
-								<span class="truncate">{wf.path.replace('.json', '')}</span>
+								<span class="truncate">{wf.path.split('/').pop()?.replace('.json', '')}</span>
 							</button>
 						{/each}
 					</div>

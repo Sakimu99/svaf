@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -8,11 +8,13 @@
 	let {
 		value = $bindable(''),
 		onselect,
-		onpromptload
+		onpromptload,
+		subdir = 'WAI'
 	}: {
 		value?: string;
 		onselect?: (wf: DrawWorkflow) => void;
 		onpromptload?: (positive: string, negative: string) => void;
+		subdir?: string;
 	} = $props();
 
 	let open = $state(false);
@@ -33,7 +35,7 @@
 			<Button variant="outline" class="w-full justify-start gap-2" {...props}>
 				<Icon icon="mdi:cog-outline" class="size-4" />
 				{#if value}
-					<span class="truncate">{value.replace('.json', '')}</span>
+					<span class="truncate">{value.split('/').pop()?.replace('.json', '')}</span>
 				{:else}
 					<span class="text-muted-foreground">选择工作流</span>
 				{/if}
@@ -48,7 +50,7 @@
 			</Dialog.Title>
 		</Dialog.Header>
 		<div class="overflow-y-auto min-h-0">
-			<WorkflowSelector bind:value onselect={handleSelect} onpromptload={handlePromptLoad} showTitle={false} constrainHeight={false} />
+			<WorkflowSelector {subdir} bind:value onselect={handleSelect} onpromptload={handlePromptLoad} showTitle={false} constrainHeight={false} />
 		</div>
 	</Dialog.Content>
 </Dialog.Root>
